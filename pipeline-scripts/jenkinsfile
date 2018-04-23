@@ -8,6 +8,7 @@ def mastervertical = MASTERVERTICAL_SCALE_TEST.toString().toUpperCase()
 def install_openstack = OPENSTACK_INSTALL.toString().toUpperCase()
 def browbeat = BROWBEAT_INSTALL.toString().toUpperCase()
 def scaleup = OPENSHIFT_SCALEUP.toString().toUpperCase()
+def http_test = HTTP_TEST.toString().toUpperCase()
 
 node {
     // clear workspace
@@ -56,9 +57,10 @@ node {
     }
 
     // stage to run http scale test
-//    if (http == "TRUE") {
-//        load "aos-cd-jobs/pipeline-scripts/http.groovy"
-//    }
+    if (http_test == "TRUE") {
+        load "aos-cd-jobs/pipeline-scripts/http_test.groovy"
+    }
+
     mail(
     	to: 'nelluri@redhat.com',
         subject: 'Scale-ci pipeline completed successfully',
