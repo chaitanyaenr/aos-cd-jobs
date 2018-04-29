@@ -71,7 +71,7 @@ node {
 
     if ( pgbench_test == "TRUE" ) {
       load "aos-cd-jobs/pipeline-scripts/pgbench.groovy"
-   }
+    }
 
     mail(
     	to: 'nelluri@redhat.com',

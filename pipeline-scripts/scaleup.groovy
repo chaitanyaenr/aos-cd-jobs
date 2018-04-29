@@ -33,14 +33,12 @@ stage ('openshift_scaleup') {
                         println "----------USER DEFINED OPTIONS-------------------"
                         println "-------------------------------------------------"
                         println "-------------------------------------------------"
-                        println "OPENSHIFT_SERVER: '${openshift_server}'"
                         println "OPENSTACK_SERVER: '${openstack_server}'"
                         println "OPENSTACK_USER: '${openstack_user}'"
                         println "IMAGE_SERVER: '${image_server}'"
                         println "IMAGE_USER: '${image_user}'"
                         println "BRANCH: '${branch}'"
 			println "OPENSHIFT_NODE_TARGET: '${openshift_node_target}'"
-			println "block_size: '${scale_block_size}'"
 			println "TIME_SERVERS: '${time_servers}'"
 			println "JENKINS_SLAVE_LABEL: '${jenkins_slave_label}'"
                         println "-------------------------------------------------"
@@ -48,7 +46,7 @@ stage ('openshift_scaleup') {
 		
 			// Run scaleup
 			try {
-			    scaleup_build = build job: 'scale-ci-ScaleUp_Openshift',
+			    scaleup_build = build job: 'scale-ci_ScaleUp_OpenShift',
 				parameters: [   [$class: 'LabelParameterValue', name: 'node', label: node_label ],
 						[$class: 'StringParameterValue', name: 'OPENSTACK_SERVER', value: openstack_server ],
 						[$class: 'StringParameterValue', name: 'OPENSTACK_USER', value: openstack_user ],
@@ -57,7 +55,7 @@ stage ('openshift_scaleup') {
 						[$class: 'StringParameterValue', name: 'branch', value: branch ],
 						[$class: 'StringParameterValue', name: 'OPENSHIFT_NODE_TARGET', value: openshift_node_target ],
                                                 [$class: 'StringParameterValue', name: 'scale_block_size', value: block_size ],
-                                                [$class: 'StringParameterValue', name: 'time_servers', value: time-servers ],
+                                                [$class: 'StringParameterValue', name: 'time_servers', value: time_servers ],
                                                 [$class: 'StringParameterValue', name: 'JENKINS_SLAVE_LABEL', value: jenkins_slave_label ]]
 			} catch ( Exception e) {
                 	echo "SCALE_CI_OPENSHIFT_SCALEUP Job failed with the following error: "
@@ -74,5 +72,4 @@ stage ('openshift_scaleup') {
             		}
                 	println "SCALE-CI-OPENSHIFT-SCALEUP build ${openshift_build.getNumber()} completed successfully"
 		}
-	}
 }
