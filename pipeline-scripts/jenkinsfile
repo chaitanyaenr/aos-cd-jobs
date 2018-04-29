@@ -10,6 +10,8 @@ def browbeat = BROWBEAT_INSTALL.toString().toUpperCase()
 def scaleup = OPENSHIFT_SCALEUP.toString().toUpperCase()
 def http = HTTP_TEST.toString().toUpperCase()
 def logging = LOGGING_SCALE_TEST.toString().toUpperCase()
+def pgbench_test = PGBENCH_TEST.toString().toUpperCase()
+
 
 node {
     // clear workspace
@@ -31,7 +33,7 @@ node {
     if (openshift_install == "TRUE") {
 	load "aos-cd-jobs/pipeline-scripts/scale-ci.groovy"
     }
-    
+
     // stage to setup pbench
     if (setup_tooling == "TRUE") {
         load "aos-cd-jobs/pipeline-scripts/tooling.groovy"
@@ -66,6 +68,11 @@ node {
     if (http == "TRUE") {
        load "aos-cd-jobs/pipeline-scripts/http.groovy"
     }
+
+    if ( pgbench_test == "TRUE" ) {
+      load "aos-cd-jobs/pipeline-scripts/pgbench.groovy"
+   }
+
     mail(
     	to: 'nelluri@redhat.com',
         subject: 'Scale-ci pipeline completed successfully',
