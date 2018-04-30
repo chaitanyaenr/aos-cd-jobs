@@ -41,7 +41,6 @@ stage ('openstack_install') {
 			def jenkins_slave_label = openstack_properties['JENKINS_SLAVE_LABEL']
 			def num_compute = openstack_properties['NUM_COMPUTE']
 			def num_storage = openstack_properties['NUM_STORAGE']
-			def num_controllers = openstack_properties['NUM_CONTROLLERS']
 	                def access_token = openstack_properties['PERSONAL_ACCESS_TOKEN']
 			def extra_vars = openstack_properties['EXTRA_VARS']
 			//def private_lan = openstack_properties['DEPLOY_EXTERNAL_PRIVATE_LAN']
@@ -95,7 +94,6 @@ stage ('openstack_install') {
                                                 [$class: 'StringParameterValue', name: 'GRAPHITE', value: graphite ],	
 						[$class: 'StringParameterValue', name: 'NUM_COMPUTE', value: num_compute ],
 						[$class: 'StringParameterValue', name: 'NUM_STORAGE', value: num_storage ],
-                                                [$class: 'StringParameterValue', name: 'NUM_CONTROLLERS', value: num_controllers ],
 						[$class: 'StringParameterValue', name: 'PRIVATE_EXTERNAL_ADDRESS', value: private_external_ip ],
 					        [$class: 'StringParameterValue', name: 'EXTRA_VARS', value: extra_vars ],
 						[$class: 'StringParameterValue', name: 'PERSONAL_ACCESS_TOKEN', value: access_token ],

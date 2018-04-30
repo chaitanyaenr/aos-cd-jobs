@@ -29,6 +29,8 @@ stage ('openshift_install') {
 			def openshift_registries = openshift_properties['OPENSHIFT_REGISTRIES']
 			def time_servers = openshift_properties['TIME_SERVERS']
 			def jenkins_slave_label = openshift_properties['JENKINS_SLAVE_LABEL']
+			def create_flavors = openshift_properties['CREATE_FLAVORS']
+			def upload_images = openshift_properties['UPLOAD_IMAGES']
 
                         // debug info
                         println "----------USER DEFINED OPTIONS-------------------"
@@ -58,6 +60,8 @@ stage ('openshift_install') {
 						[$class: 'StringParameterValue', name: 'openshift_node_flavor', value: openshift_node_flavor ],
                                                 [$class: 'StringParameterValue', name: 'openshift_registries', value: openshift_registries ],
                                                 [$class: 'StringParameterValue', name: 'time_servers', value: time_servers ],
+						[$class: 'BooleanParameterValue', name: 'create_flavors', value: Boolean.valueOf(create_flavors) ],
+                                                [$class: 'BooleanParameterValue', name: 'upload_images', value: Boolean.valueOf(upload_images) ],
                                                 [$class: 'StringParameterValue', name: 'JENKINS_SLAVE_LABEL', value: jenkins_slave_label ]]
 			} catch ( Exception e) {
                 	echo "SCALE_CI_OPENSHIFT_INSTALL Job failed with the following error: "
