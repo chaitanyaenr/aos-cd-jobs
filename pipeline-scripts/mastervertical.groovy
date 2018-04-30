@@ -31,6 +31,9 @@ stage('mastervertical_scale_test') {
 			def proxy_host = mastervertical_properties['PROXY_HOST']
 			def projects = mastervertical_properties['PROJECTS']
 			def setup_pbench = mastervertical_properties['SETUP_PBENCH']
+			def first_run = mastervertical_properties['FIRST_RUN_PROJECTS']
+			def second_run = mastervertical_properties['SECOND_RUN_PROJECTS']
+			def third_run = mastervertical_properties['THIRD_RUN_PROJECTS']
 
                         // debug info
                         println "JUMP_HOST: '${jump_host}'"
@@ -57,7 +60,9 @@ stage('mastervertical_scale_test') {
                                                 [$class: 'StringParameterValue', name: 'PROXY_HOST', value: proxy_host ],
 						[$class: 'BooleanParameterValue', name: 'USE_PROXY', value: Boolean.valueOf(use_proxy) ],
 						[$class: 'BooleanParameterValue', name: 'SETUP_PBENCH', value: Boolean.valueOf(setup_pbench) ],
-                                                [$class: 'StringParameterValue', name: 'PROJECTS', value: projects ]]
+						[$class: 'StringParameterValue', name: 'FIRST_RUN_PROJECTS', value: first_run ],
+                                           	[$class: 'StringParameterValue', name: 'SECOND_RUN_PROJECTS', value: second_run ],
+                                                [$class: 'StringParameterValue', name: 'THIRD_RUN_PROJECTS', value: third_run ]]
                         } catch ( Exception e) {
                        	echo "MASTERVERTICAL-SCALE-TEST Job failed with the following error: "
                         echo "${e.getMessage()}"
