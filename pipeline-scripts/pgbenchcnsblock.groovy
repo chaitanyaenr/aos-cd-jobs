@@ -3,25 +3,26 @@
 def pipeline_id = env.BUILD_ID
 println "Current pipeline job build id is '${pipeline_id}'"
 def node_label = 'CCI && ansible-2.3'
-def pgbench_test = PGBENCH_TEST.toString().toUpperCase()
+def pgbench_test_cns_block = PGBENCH_TEST_CNS_BLOCK.toString().toUpperCase()
 
 // run pgbench scale test
-stage ('pgbench_scale_test') {
-          if ( pgbench_test == "TRUE") {
+stage ('pgbench_scale_test_cns_block') {
+          if ( pgbench_test_cns_block == "TRUE") {
                 currentBuild.result = "SUCCESS"
 		node('CCI && US') {
                         // get properties file
-                        if (fileExists("pgbench.properties")) {
-                                println "pgbench_scale_test.properties file exist... deleting it..."
-                                sh "rm pgbench.properties"
+                        if (fileExists("pgbench_cns_block.properties")) {
+                                println "pgbench_cns_block.properties file exist... deleting it..."
+                                sh "rm pgbench_cns_block.properties"
                         }
                         // get properties file - from test location
                         // in SCALE-CI there will be defined PGBENCH_SCALE_TEST_PROPERTY_FILE
                         // for now just keep it as is --
 
-                        sh "wget -O pgbench.properties ${PGBENCH_PROPERTY_FILE}"
-                        sh "cat pgbench.properties"
-			def pgbench_scale_test_properties = readProperties file: "pgbench.properties"
+                        // sh "wget https://raw.githubusercontent.com/ekuric/openshift/master/postgresql/pgbench.properties"
+                        sh "wget -O pgbench_cns_block.properties ${PGBENCH_PROPERTY_FILE_CNS_BLOCK}"
+                        sh "cat pgbench_cns_block.properties"
+			def pgbench_scale_test_properties = readProperties file: "pgbench_cns_block.properties"
                         def NAMESPACE = pgbench_scale_test_properties['NAMESPACE']
                         def TRANSACTIONS = pgbench_scale_test_properties['TRANSACTIONS']
                         def TEMPLATE = pgbench_scale_test_properties['TEMPLATE']
