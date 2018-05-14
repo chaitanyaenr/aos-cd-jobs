@@ -21,7 +21,7 @@ stage ('openstack_install') {
 			sh "cat openstack.properties"
 			def openstack_properties = readProperties file: "openstack.properties"
 			def rhos_release_url = openstack_properties['RHOS_RELEASE_URL']
-			def rhel_base_url = openstack_properties['RHEL_7_SERVER_BETA_BASE_URL']
+			//def rhel_base_url = openstack_properties['RHEL_7_SERVER_BETA_BASE_URL']
 			def stack_passwd = openstack_properties['STACK_PASSWORD']
 			def external_ip = openstack_properties['EXTERNAL_NETWORK_VIP']
 			def private_external_ip = openstack_properties['PRIVATE_EXTERNAL_ADDRESS']
@@ -50,7 +50,6 @@ stage ('openstack_install') {
                         println "-------------------------------------------------"
                         println "-------------------------------------------------"
                         println "RHOS_RELEASE_URL: '${rhos_release_url}'"
-                        println "RHEL_7_SERVER_BETA_BASE_URL: '${rhel_base_url}'"
                         println "STACK_PASSWORD: '${stack_passwd}'"
                         println "EXTERNAL_NETWORK_VIP: '${external_ip}'"
                         println "DNS_SERVER: '${dns_server}'"
@@ -76,7 +75,6 @@ stage ('openstack_install') {
 				parameters: [   [$class: 'LabelParameterValue', name: 'node', label: node_label ],
 					
 						[$class: 'StringParameterValue', name: 'RHOS_RELEASE_URL', value: rhos_release_url ],
-						[$class: 'StringParameterValue', name: 'RHEL_7_SERVER_BETA_BASE_URL', value: rhel_base_url ],
 						[$class: 'StringParameterValue', name: 'STACK_PASSWORD', value: stack_passwd ],
 						[$class: 'StringParameterValue', name: 'EXTERNAL_NETWORK_VIP', value: external_ip ],
 						[$class: 'StringParameterValue', name: 'DNS_SERVER', value: dns_server ],
