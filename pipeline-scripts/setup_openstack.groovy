@@ -31,7 +31,7 @@ stage ('openstack_install') {
 			def ticket = openstack_properties['TICKET_NUMBER']
 			def foreman_url = openstack_properties['FOREMAN_URL']
 			def undercloud = openstack_properties['UNDERCLOUD_HOSTNAME']
-			def template_repo = openstack_properties['TEMPLATE_REPOSITORY']
+			//def template_repo = openstack_properties['TEMPLATE_REPOSITORY']
 			def ansible_passwd = openstack_properties['ANSIBLE_SSH_PASS']
 			def passthrough_host = openstack_properties['PASSTHROUGH_HOSTNAME']
 			def ntp_server = openstack_properties['NTP_SERVER']
@@ -58,7 +58,6 @@ stage ('openstack_install') {
 			println "CLOUD_TITLE: '${cloud_title}'"
 			println "FOREMAN_URL: '${foreman_url}'"
 			println "UNDERCLOUD_HOSTNAME: '${undercloud}'"
-			println "TEMPLATE_REPOSITORY: '${template_repo}'"
 			println "ANSIBLE_SSH_PASS: '${ansible_passwd}'"
 			println "PASSTHROUGH_HOSTNAME: '${passthrough_host}'"
 			println "NTP_SERVER: '${ntp_server}'"
@@ -83,7 +82,7 @@ stage ('openstack_install') {
                                                 [$class: 'StringParameterValue', name: 'CLOUD_TITLE', value: cloud_title ],
                                                 [$class: 'StringParameterValue', name: 'FOREMAN_URL', value: foreman_url ],
                                                 [$class: 'StringParameterValue', name: 'UNDERCLOUD_HOSTNAME', value: undercloud ],
-                                                [$class: 'StringParameterValue', name: 'TEMPLATE_REPOSITORY', value: template_repo ],
+                                                //[$class: 'StringParameterValue', name: 'TEMPLATE_REPOSITORY', value: template_repo ],
                                                 [$class: 'StringParameterValue', name: 'ANSIBLE_SSH_PASS', value: ansible_passwd ],
                                                 [$class: 'StringParameterValue', name: 'PASSTHROUGH_HOSTNAME', value: passthrough_host ],
                                                 [$class: 'StringParameterValue', name: 'NTP_SERVER', value: ntp_server ],
