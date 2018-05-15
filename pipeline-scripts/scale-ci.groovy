@@ -2,7 +2,7 @@
 
 def pipeline_id = env.BUILD_ID
 println "Current pipeline job build id is '${pipeline_id}'"
-def node_label = 'CCI && ansible-2.3'
+def node_label = 'CCI && ansible-2.4'
 def openshift_install = OPENSHIFT_INSTALL.toString().toUpperCase()
 
 // install openshift
