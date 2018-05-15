@@ -17,7 +17,7 @@ stage ('BROWBEAT') {
                         }
                         // get properties file
                         //sh "wget http://file.rdu.redhat.com/~nelluri/pipeline/browbeat.properties"
-                        sh "wget ${BROWBEAT_PROPERTY_FILE}"
+                        sh "wget ${BROWBEAT_PROPERTY_FILE} -O browbeat.properties"
                         sh "cat browbeat.properties"
 			def browbeat_properties = readProperties file: "browbeat.properties"
                         def openstack_server = browbeat_properties['OPENSTACK_SERVER']
