@@ -11,6 +11,7 @@ def scaleup = OPENSHIFT_SCALEUP.toString().toUpperCase()
 def http = HTTP_TEST.toString().toUpperCase()
 def logging = LOGGING_SCALE_TEST.toString().toUpperCase()
 def pgbench_test = PGBENCH_TEST.toString().toUpperCase()
+def pgbench_test_cns_block = PGBENCH_TEST_CNS_BLOCK.toString().toUpperCase() 
 
 
 node {
@@ -72,6 +73,9 @@ node {
     if ( pgbench_test == "TRUE" ) {
       load "aos-cd-jobs/pipeline-scripts/pgbench.groovy"
     }
+    if ( pgbench_test_cns_block == "TRUE" ) {
+	load "aos-cd-jobs/pipeline-scripts/pgbenchcnsblock.groovy"
+    } 
 
     mail(
     	to: 'nelluri@redhat.com',
