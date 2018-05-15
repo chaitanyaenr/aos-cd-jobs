@@ -2,7 +2,7 @@
 
 def pipeline_id = env.BUILD_ID
 println "Current pipeline job build id is '${pipeline_id}'"
-def node_label = 'CCI && ansible-2.3'
+def node_label = 'CCI && ansible-2.4'
 def browbeat = BROWBEAT_INSTALL.toString().toUpperCase()
 
 // run browbeat install
@@ -23,7 +23,7 @@ stage ('BROWBEAT') {
                         def openstack_server = browbeat_properties['OPENSTACK_SERVER']
                         def user = browbeat_properties['OPENSTACK_USER']
                         def graphite = browbeat_properties['GRAPHITE']
-			def graphite_prefix = browbeat_properties['GRAPHITE_PREFIX']
+			def graphite_prefix = browbeat_properties['GRAPHITE_PREFIX]
 		        def access_token = browbeat_properties['PERSONAL_ACCESS_TOKEN']
 			
                         // debug info

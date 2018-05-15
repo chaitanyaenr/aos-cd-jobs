@@ -1,7 +1,7 @@
 #!/usr/bin/env groovy
 
 def pipeline_id = env.BUILD_ID
-def node_label = 'CCI && ansible-2.3'
+def node_label = 'CCI && ansible-2.4'
 def setup_tooling = SETUP_TOOLING.toString().toUpperCase()
 
 println "Current pipeline job build id is '${pipeline_id}'"
