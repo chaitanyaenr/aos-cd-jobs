@@ -14,12 +14,13 @@ class HostScriptAction(Action):
 
     def __init__(self, script, title):
         self.script = script
-        if title == None:
+        if title is None:
             title = _HOST_SCRIPT_TITLE
         self.title = title
 
     def generate_build_steps(self):
         return [render_task(
             title=self.title,
-            command=self.script
+            command=self.script,
+            output_format=self.output_format
         )]

@@ -42,7 +42,7 @@ pkg_tar() {
 
 OSE_VERSION=$1
 VERSION=$2
-RPM=/mnt/rcm-guest/puddles/RHAOS/AtomicOpenShift/${OSE_VERSION}/latest/%s
+RPM=/mnt/rcm-guest/puddles/RHAOS/AtomicOpenShift/${OSE_VERSION}/building/%s
 RPM=${RPM}/os/Packages/atomic-openshift-clients
 ARCH='aarch64 ppc64le s390x'
 TMPDIR=$(mktemp -dt ocbinary.XXXXXXXXXX)
@@ -64,4 +64,4 @@ rsync \
     use-mirror-upload.ops.rhcloud.com:/srv/pub/openshift-v3/clients/
 ssh -l jenkins_aos_cd_bot -o StrictHostKeychecking=no \
     use-mirror-upload.ops.rhcloud.com \
-    /usr/local/bin/push.pub.sh openshift-v3 -v
+    timeout 15m /usr/local/bin/push.pub.sh openshift-v3 -v || timeout 5m /usr/local/bin/push.pub.sh openshift-v3 -v || timeout 5m /usr/local/bin/push.pub.sh openshift-v3 -v

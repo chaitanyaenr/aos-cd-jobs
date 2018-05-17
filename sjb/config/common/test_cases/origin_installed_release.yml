@@ -14,8 +14,8 @@ extensions:
         if [[ "${PULL_BASE_REF}" == "release-3.7" || "${PULL_BASE_REF}" == "release-3.6" || "${PULL_BASE_REF}" == "release-3.5"  ]]; then
           sudo yum downgrade -y ansible-2.3\*
         fi
-        sudo yum install -y "atomic-openshift-utils${last_tag/openshift-ansible/}.git.0.${last_commit}.el7"
-        rpm -V "atomic-openshift-utils${last_tag/openshift-ansible/}.git.0.${last_commit}.el7"
+        sudo yum install -y "openshift-ansible${last_tag/openshift-ansible/}.git.0.${last_commit}.el7"
+        rpm -q "openshift-ansible${last_tag/openshift-ansible/}.git.0.${last_commit}.el7"
     - type: "script"
       title: "install Ansible plugins"
       timeout: 600
@@ -35,19 +35,15 @@ extensions:
       repository: "origin"
       script: |-
         jobs_repo="/data/src/github.com/openshift/aos-cd-jobs/"
-        git log -1 --pretty=%h >> "${jobs_repo}/ORIGIN_COMMIT"
+        git log -1 --pretty=%h > "${jobs_repo}/ORIGIN_COMMIT"
 
         source hack/lib/init.sh
         os::build::rpm::get_nvra_vars
-        echo "-${OS_RPM_VERSION}-${OS_RPM_RELEASE}" >> "${jobs_repo}/ORIGIN_PKG_VERSION"
-        echo "${OS_GIT_MAJOR}.${OS_GIT_MINOR}" | sed "s/+//" >> "${jobs_repo}/ORIGIN_RELEASE"
-        echo "${OS_RPM_VERSION}" | cut -d'.' -f2 >> "${jobs_repo}/ORIGIN_PKG_MINOR_VERSION"
+        echo "-${OS_RPM_VERSION}-${OS_RPM_RELEASE}" > "${jobs_repo}/ORIGIN_PKG_VERSION"
+        echo "${OS_GIT_MAJOR}.${OS_GIT_MINOR}" | sed "s/+//" > "${jobs_repo}/ORIGIN_RELEASE"
+        echo "${OS_RPM_VERSION}" | cut -d'.' -f2 > "${jobs_repo}/ORIGIN_PKG_MINOR_VERSION"
         tag="$( echo "v${OS_GIT_MAJOR}.${OS_GIT_MINOR}" | sed "s/+//" )"
-        if [[ "${tag}" =~ ^v3.(6|7|8|9)$ ]]; then
-          git describe --abbrev=0 >> "${jobs_repo}/ORIGIN_TAG"
-        else
-          echo "${tag}" >> "${jobs_repo}/ORIGIN_TAG"
-        fi
+        echo "${tag}" > "${jobs_repo}/ORIGIN_TAG"
     - type: "script"
       title: "origin prerequisites"
       repository: "aos-cd-jobs"
@@ -121,7 +117,7 @@ extensions:
       repository: "origin"
       script: |-
         origin_package="$( source hack/lib/init.sh; os::build::rpm::format_nvra )"
-        rpm -V "${origin_package}"
+        rpm -q "${origin_package}"
   system_journals:
     - origin-master.service
     - origin-master-api.service

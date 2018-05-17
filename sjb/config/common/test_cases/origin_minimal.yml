@@ -23,10 +23,12 @@ actions:
       echo "ETCD_DATA_DIR=/tmp/etcd" >> /etc/environment
       SUDO
   - type: "script"
-    title: "turn off unnecessary CentOS PaaS SIG repos"
+    title: "turn off unnecessary RPM repos"
     timeout: 300
     script: |-
       sudo yum-config-manager --disable centos-paas-sig-openshift-origin\*-rpms
+      sudo yum-config-manager --disable origin-deps-rhel7\* || true
+      sudo yum-config-manager --disable rhel-7-server-ose\* || true
 
       if [[ "${JOB_NAME}" == *update* ]]; then
         branch="${PULL_BASE_REF:-"master"}"
@@ -86,8 +88,8 @@ post_actions:
       cp artifacts/journals/* gcs/artifacts/journals/
       cp -r artifacts/gathered/* gcs/artifacts/
 
-      scp -F ./.config/origin-ci-tool/inventory/.ssh_config -r "$( pwd )/gcs" openshiftdevel:/data
-      scp -F ./.config/origin-ci-tool/inventory/.ssh_config /var/lib/jenkins/.config/gcloud/gcs-publisher-credentials.json openshiftdevel:/data/credentials.json
+      scp -F ${WORKSPACE}/.config/origin-ci-tool/inventory/.ssh_config -r "$( pwd )/gcs" openshiftdevel:/data
+      scp -F ${WORKSPACE}/.config/origin-ci-tool/inventory/.ssh_config /var/lib/jenkins/.config/gcloud/gcs-publisher-credentials.json openshiftdevel:/data/credentials.json
   - type: "script"
     title: "push the artifacts and metadata"
     timeout: 300
@@ -100,7 +102,7 @@ post_actions:
           echo "Using BUILD_NUMBER"
           JOB_SPEC="$( jq --compact-output ".buildid |= \"${BUILD_NUMBER}\"" <<<"${JOB_SPEC}" )"
         fi
-        docker run -e JOB_SPEC="${JOB_SPEC}" -v "/data:/data:z" registry.svc.ci.openshift.org/ci/gcsupload:latest --dry-run=false --gcs-bucket=origin-ci-test --gcs-credentials-file=/data/credentials.json --path-strategy=single --default-org=openshift --default-repo=origin /data/gcs/*
+        docker run -e JOB_SPEC="${JOB_SPEC}" -v "/data:/data:z" registry.svc.ci.openshift.org/ci/gcsupload:latest --dry-run=false --gcs-path=gs://origin-ci-test --gcs-credentials-file=/data/credentials.json --path-strategy=single --default-org=openshift --default-repo=origin /data/gcs/*
       fi
 artifacts:
   - "/data/src/github.com/openshift/origin/_output/scripts"

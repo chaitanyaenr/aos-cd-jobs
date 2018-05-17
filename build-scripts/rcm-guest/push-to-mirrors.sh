@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Push the latest atomic-openshift puddle to the mirrors
+# Push the building atomic-openshift puddle to the mirrors
 #
 
 set -o xtrace
@@ -9,7 +9,7 @@ set -e
 ############
 # VARIABLES
 ############
-PUDDLE_TYPE="${1}"
+SYMLINK_NAME="${1}"
 FULL_VERSION="${2}"
 BUILD_MODE="${3}"
 BASEDIR="/mnt/rcm-guest/puddles/RHAOS"
@@ -36,10 +36,10 @@ fi
 
 usage() {
   echo >&2
-  echo "Usage `basename $0` [type] [version] <build_mode>" >&2
+  echo "Usage `basename $0` [link_name] [version] <build_mode>" >&2
   echo >&2
-  echo "type: simple errata" >&2
-  echo "  type of puddle we are pushing" >&2
+  echo "link_name: latest" >&2
+  echo "  symlink filename to establish to the puddle on rcm-guest/mirror" >&2
   echo "version: e.g. 3.7.0-0.143.7" >&2
   echo "  What version we are pulling from" >&2
   echo "  For enterprise repos, which release we are pushing to" >&2
@@ -57,19 +57,15 @@ if [ "$#" -lt 2 ] ; then
   usage
 fi
 
-if [ "${PUDDLE_TYPE}" == "simple" ] ; then
-  PUDDLEDIR=${BASEDIR}/AtomicOpenShift/${MAJOR_MINOR}
-else
-  PUDDLEDIR=${BASEDIR}/AtomicOpenShift-errata/${MAJOR_MINOR}
-fi
+PUDDLEDIR=${BASEDIR}/AtomicOpenShift/${MAJOR_MINOR}
 
 # This directory is initially created by puddle as 755.  Setting it to 775
 # allows other trusted users to run puddle/write into this directory once the
 # directory has been established.
 chmod 775 "${PUDDLEDIR}/" || true
 
-# dereference the symlink to the actual directory basename: e.g. "2017-06-09.4"
-LASTDIR=$(readlink --verbose "${PUDDLEDIR}/latest")
+# dereference the building symlink to the actual directory basename: e.g. "2017-06-09.4"
+LASTDIR=$(readlink --verbose "${PUDDLEDIR}/building")
 
 # Create a symlink on rcm-guest which includes the OCP version. This
 # helps find puddles on rcm-guest for particular builds. Note that
@@ -79,7 +75,12 @@ LASTDIR=$(readlink --verbose "${PUDDLEDIR}/latest")
 VERSIONED_DIR="v${FULL_VERSION}_${LASTDIR}"  # e.g. v3.7.0-0.173.0_2017-06-09.4
 ln -sfn "${LASTDIR}" "${PUDDLEDIR}/${VERSIONED_DIR}"
 
-echo "Pushing puddle: $LASTDIR"
+# Create the symlink on rcm-guest. QE appears to use 'latest' here instead of on mirrors.
+pushd "$PUDDLEDIR"
+ln -sfn "$VERSIONED_DIR"  "$SYMLINK_NAME"
+popd
+
+echo "Pushing puddle: $LASTDIR   ($VERSIONED_DIR)"
 
 MIRROR_SSH_SERVER="use-mirror-upload.ops.rhcloud.com"
 MIRROR_SSH_BASE="ssh ${BOT_USER} -o StrictHostKeychecking=no"
@@ -114,17 +115,14 @@ $MIRROR_SSH sh -s <<-EOF
   set -o xtrace
   cd "${MIRROR_PATH}"
 
-  # Replace latest link with new puddle content
-  ln -sfn ${VERSIONED_DIR} latest
+  # Replace current symlink with new puddle content
+  ln -sfn ${VERSIONED_DIR} ${SYMLINK_NAME}
 
-  cd "${MIRROR_PATH}/latest"
+  cd "${MIRROR_PATH}/${SYMLINK_NAME}"
+
   # Some folks use this legacy location for their yum repo configuration
   # e.g. https://euw-mirror1.ops.rhcloud.com/enterprise/enterprise-3.3/latest/RH7-RHAOS-3.3/x86_64/os
-  if [ "${PUDDLE_TYPE}" == "simple" ] ; then
-  	ln -s mash/rhaos-${MAJOR_MINOR}-rhel-7-candidate RH7-RHAOS-${MAJOR_MINOR}
-  else
-  	ln -s RH7-RHAOS-${MAJOR_MINOR}/* .
-  fi
+  ln -s mash/rhaos-${MAJOR_MINOR}-rhel-7-candidate RH7-RHAOS-${MAJOR_MINOR}
 
   # All builds should be tracked in this repository.
   mkdir -p ${ALL_DIR}
@@ -133,9 +131,9 @@ $MIRROR_SSH sh -s <<-EOF
   # Symlink new build into all directory.
   ln -s ${MIRROR_PATH}/${VERSIONED_DIR}
   # Replace any existing latest directory to point to the last build.
-  ln -sfn ${MIRROR_PATH}/${VERSIONED_DIR} latest
+  ln -sfn ${MIRROR_PATH}/${VERSIONED_DIR} ${SYMLINK_NAME}
 
-  # Synchronize the changes to the mirrors
-  /usr/local/bin/push.enterprise.sh ${REPO} -v
-  /usr/local/bin/push.enterprise.sh all -v
+  # Synchronize the changes to the mirrors; If this fails, ops mirrors are usually full.
+  timeout 1h /usr/local/bin/push.enterprise.sh ${REPO} -v
+  timeout 1h /usr/local/bin/push.enterprise.sh all -v
 EOF

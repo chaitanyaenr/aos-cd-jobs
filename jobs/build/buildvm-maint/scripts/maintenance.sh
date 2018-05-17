@@ -41,11 +41,10 @@ echo "====Cleaning up older docker images===="
         done
 } | sort | awk '{ print $2 }' | uniq | head -n -100 | xargs --no-run-if-empty sudo docker rmi -f
 
-FINAL_EXIT=0
+# Clean up exited containers - this also contributes to docker storage use
+docker rm $(docker ps -qa --no-trunc --filter "status=exited")
 
-echo "====Pushing etc..===="
-sudo env "PATH=$PATH" ose_images.sh push_images --branch rhscl-3.0-rh-nodejs6-rhel-7 --package rh-nodejs6-docker
-FINAL_EXIT=$(($FINAL_EXIT | $?))  # bitwise OR to collect errors
+FINAL_EXIT=0
 
 echo "====Docker statistics===="
 # Print out a report for the Jenkins job

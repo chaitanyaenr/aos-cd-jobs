@@ -18,8 +18,8 @@ cd "\${HOME}"
 {{ command | replace("$", "\$") }}
 SCRIPT
 chmod +x "${script}"
-scp -F ./.config/origin-ci-tool/inventory/.ssh_config "${script}" openshiftdevel:"${script}"
-ssh -F ./.config/origin-ci-tool/inventory/.ssh_config -t openshiftdevel "bash -l -c \\"timeout {{ timeout }} ${script}\\"" """)
+scp -F ${WORKSPACE}/.config/origin-ci-tool/inventory/.ssh_config "${script}" openshiftdevel:"${script}"
+ssh -F ${WORKSPACE}/.config/origin-ci-tool/inventory/.ssh_config -t openshiftdevel "bash -l -c \\"timeout {{ timeout }} ${script}\\"" """)
 
 
 class ScriptAction(Action):
@@ -30,7 +30,7 @@ class ScriptAction(Action):
     the repository as the working directory.
     """
 
-    def __init__(self, repository, script, title, timeout):
+    def __init__(self, repository, script, title, timeout, output_format):
         self.repository = repository
         self.script = script
         if title == None:
@@ -39,6 +39,7 @@ class ScriptAction(Action):
             timeout = 14400
         self.title = title
         self.timeout = timeout
+        self.output_format = output_format
 
     def generate_build_steps(self):
         return [render_task(
@@ -47,5 +48,6 @@ class ScriptAction(Action):
                 repository=self.repository,
                 command=self.script,
                 timeout=self.timeout
-            )
+            ),
+            output_format=self.output_format
         )]

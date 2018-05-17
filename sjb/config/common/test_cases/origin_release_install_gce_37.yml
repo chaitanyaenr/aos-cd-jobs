@@ -14,7 +14,7 @@ extensions:
         The image to install the cluster with. If set, defaults to the value defined by the
         <a href='https://github.com/openshift/release/blob/master/cluster/bin/local.sh'><code>cluster/bin/local.sh</code></a>
         script.
-      default_value: openshift/origin-ansible:v3.7
+      default_value: openshift/origin-ansible:v3.9
     - name: "ADDITIONAL_SKIP"
       description: |-
         Regular expression to filter additional tests from the conformance suite.
@@ -45,7 +45,7 @@ extensions:
       script: |-
         if [[ "${REPO_OWNER-}" != "openshift" || "${REPO_NAME-}" != "openshift-ansible" ]]; then
           # ensure we get an update to date image
-          docker pull openshift/origin-ansible:latest
+          docker pull "${OPENSHIFT_ANSIBLE_IMAGE}"
           exit 0
         fi
         hack/build-images.sh
@@ -70,7 +70,7 @@ extensions:
       script: |-
         if [[ "${REPO_OWNER-}" != "openshift" || "${REPO_NAME-}" != "origin" ]]; then
           # use pre-built RPMs when the job is not targeting origin, or use master if nothing else is available
-          location_url="$(curl -q https://storage.googleapis.com/origin-ci-test/releases/openshift/origin/${ORIGIN_TARGET_BRANCH:-master}/.latest-rpms)"
+          location_url="$(curl -q https://storage.googleapis.com/origin-ci-test/releases/openshift/origin/${ORIGIN_TARGET_BRANCH:-release-3.7}/.latest-rpms)"
           # hack around forwarding this to the other machine
           ssh -F ./.config/origin-ci-tool/inventory/.ssh_config openshiftdevel "echo 'location_url=${location_url:-}' >> /etc/environment"
           exit 0
@@ -102,13 +102,6 @@ extensions:
         enabled=1
         gpgcheck=0
         REPO
-
-        if gsutil ls "gs://${location_base}" &>/dev/null; then
-          gsutil rm -rf "gs://${location_base}"
-        fi
-
-        echo "${JOB_NAME}/${BUILD_NUMBER}" > .build
-        gsutil cp .build "gs://${location_base}/.build"
 
         mkdir -p artifacts/rpms
         rsync --archive --omit-dir-times --rsh "ssh -F ./.config/origin-ci-tool/inventory/.ssh_config" --rsync-path='sudo rsync' openshiftdevel:/data/src/github.com/openshift/origin/_output/local/releases/rpms ./artifacts/ || true
@@ -167,7 +160,7 @@ extensions:
         cd cluster/test-deploy/${CLUSTER_PROFILE}/
         ../../bin/ansible.sh ansible-playbook \
           -e "openshift_test_repo=${location_url}" \
-          -e debug_level=5 \
+          -e debug_level=4 \
           -e "oreg_url=${OS_PUSH_BASE_REGISTRY}${OS_PUSH_BASE_REPO}${suffix}" \
           playbooks/gcp/openshift-cluster/launch.yml \
           "${evars:-}"

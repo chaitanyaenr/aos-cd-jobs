@@ -103,8 +103,8 @@ post_actions:
       cp artifacts/generated/* gcs/artifacts/generated/ || true
       cp artifacts/journals/* gcs/artifacts/journals/ || true
 
-      scp -F ./.config/origin-ci-tool/inventory/.ssh_config -r "$( pwd )/gcs" openshiftdevel:/data
-      scp -F ./.config/origin-ci-tool/inventory/.ssh_config /var/lib/jenkins/.config/gcloud/gcs-publisher-credentials.json openshiftdevel:/data/credentials.json
+      scp -F ${WORKSPACE}/.config/origin-ci-tool/inventory/.ssh_config -r "$( pwd )/gcs" openshiftdevel:/data
+      scp -F ${WORKSPACE}/.config/origin-ci-tool/inventory/.ssh_config /var/lib/jenkins/.config/gcloud/gcs-publisher-credentials.json openshiftdevel:/data/credentials.json
   - type: "script"
     title: "push the artifacts and metadata"
     timeout: 300
@@ -117,7 +117,7 @@ post_actions:
           echo "Using BUILD_NUMBER"
           JOB_SPEC="$( jq --compact-output ".buildid |= \"${BUILD_NUMBER}\"" <<<"${JOB_SPEC}" )"
         fi
-        docker run -e JOB_SPEC="${JOB_SPEC}" -v "/data:/data:z" registry.svc.ci.openshift.org/ci/gcsupload:latest --dry-run=false --gcs-bucket=origin-federated-results --gcs-credentials-file=/data/credentials.json /data/gcs/*
+        docker run -e JOB_SPEC="${JOB_SPEC}" -v "/data:/data:z" registry.svc.ci.openshift.org/ci/gcsupload:latest --dry-run=false --gcs-path=gs://origin-federated-results --gcs-credentials-file=/data/credentials.json /data/gcs/*
       fi
 artifacts:
   - /go/src/k8s.io/kubernetes/artifacts
@@ -131,11 +131,13 @@ artifacts:
   - /tmp/kube-proxy.log
   - /tmp/kube-proxy.yaml
   - /tmp/kube-scheduler.log
+  - /etc/crio/crio.conf
 generated_artifacts:
   installed_packages.log: 'sudo yum list installed'
   avc_denials.log: 'sudo ausearch -m AVC -m SELINUX_ERR -m USER_AVC'
   filesystem.info: 'sudo df -h && sudo pvs && sudo vgs && sudo lvs'
   pid1.journal: 'sudo journalctl _PID=1 --no-pager --all --lines=all'
+  system.journal: 'sudo journalctl --no-pager --boot'
 system_journals:
   - crio.service
   - customcluster.service

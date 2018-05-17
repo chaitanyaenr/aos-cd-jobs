@@ -14,8 +14,8 @@ extensions:
         if [[ "${PULL_BASE_REF}" == "release-3.7" || "${PULL_BASE_REF}" == "release-3.6" || "${PULL_BASE_REF}" == "release-3.5"  ]]; then
           sudo yum downgrade -y ansible-2.3\*
         fi
-        sudo yum install -y "atomic-openshift-utils${last_tag/openshift-ansible/}.git.0.${last_commit}.el7"
-        rpm -V "atomic-openshift-utils${last_tag/openshift-ansible/}.git.0.${last_commit}.el7"
+        sudo yum install -y "openshift-ansible${last_tag/openshift-ansible/}.git.0.${last_commit}.el7"
+        rpm -q "openshift-ansible${last_tag/openshift-ansible/}.git.0.${last_commit}.el7"
     - type: "script"
       title: "install Ansible plugins"
       timeout: 600
@@ -44,6 +44,11 @@ extensions:
           sudo atomic pull --storage ostree docker:openshift/openvswitch:$( cat ./ORIGIN_TAG )
           sudo atomic pull --storage ostree docker:openshift/node:$( cat ./ORIGIN_TAG )
         fi
+    - type: "script"
+      title: "tag openshift/origin for system containers"
+      repository: "aos-cd-jobs"
+      script: |-
+        sudo docker tag openshift/origin:$( cat ./ORIGIN_TAG ) openshift/origin:$( cat ./ORIGIN_TAG ).$(cat ORIGIN_PKG_VERSION | grep -Po "^\-\w\.\w\.(\w)" | cut -d '.' -f 3) || true
     - type: "script"
       title: "origin prerequisites"
       repository: "aos-cd-jobs"
@@ -118,12 +123,12 @@ extensions:
         sudo chmod a+x /etc/ /etc/origin/ /etc/origin/master/
         sudo chmod a+rw /etc/origin/master/admin.kubeconfig
     - type: "script"
-      title: "ensure built version of origin is installed"
+      title: "pull ostree images"
       timeout: 600
       repository: "origin"
       script: |-
         origin_package="$( source hack/lib/init.sh; os::build::rpm::format_nvra )"
-        rpm -V "${origin_package}"
+        rpm -q "${origin_package}"
         if [[ "${OSTREE_COPY:-}" == "true" ]]; then
           docker_image_tag="$( cat ./ORIGIN_TAG )"
           docker_repository="${OS_IMAGE_PREFIX:-"openshift/origin"}"

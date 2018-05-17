@@ -1,7 +1,14 @@
 ---
 parent: 'common/test_cases/origin_release_install_gce.yml'
 overrides:
-  junit_analysis: False
+  sync:
+    - "openshift,origin=master" # this is a periodic job and so must set branches
+    - "openshift,openshift-ansible=master"
+    - "openshift,image-registry=master"
+    - "openshift,kubernetes-metrics-server=master"
+    - "openshift,origin-web-console-server=master"
+    - "openshift,aos-cd-jobs=master"
+    - "openshift,release=master"
   email:
     - ccoleman@redhat.com
 extensions:
@@ -18,10 +25,5 @@ rectory to run."
       script: |-
         location="origin-ci-test/logs/${JOB_NAME}/${BUILD_NUMBER}/artifacts/scripts/conformance-k8s/artifacts"
         location_url="https://storage.googleapis.com/${location}"
-
-        ref="${ORIGIN_TARGET_BRANCH-}"
-        if [[ -z "${ref}" && -n "${JOB_SPEC-}" ]]; then
-          ref="$( echo "${JOB_SPEC}" | jq  -r '.refs.base_ref' )"
-        fi
         echo "${location_url}" > .latest-conformance
-        gsutil cp .latest-conformance "gs://origin-ci-test/releases/openshift/origin/${ref}/.latest-conformance"
+        gsutil cp .latest-conformance "gs://origin-ci-test/releases/openshift/origin/master/.latest-conformance"

@@ -8,7 +8,7 @@ overrides:
     - "openshift,origin-aggregated-logging=master"
     - "openshift,kubernetes-metrics-server=master"
     - "openshift,origin-web-console-server=master"
-  evars: "-e skip_sanity_checks=true -e openshift_disable_check=* -e openshift_install_examples=false"
+  evars: "-e skip_sanity_checks=true -e openshift_disable_check=* -e openshift_install_examples=false -e debug_level=2"
 extensions:
   actions:
     - type: "script"
@@ -40,7 +40,7 @@ extensions:
                          --connection local         \
                          --inventory sjb/inventory/ \
                          -e openshift_deployment_type=origin  \
-                         -e debug_level=5           \
+                         -e debug_level=4           \
                          -e openshift_logging_install_logging=True \
                          -e openshift_logging_image_prefix="openshift/origin-" \
                          -e openshift_logging_elasticsearch_proxy_image_prefix="docker.io/openshift/" \
@@ -55,6 +55,7 @@ extensions:
                          -e openshift_release="$( cat ./ORIGIN_RELEASE )"                         \
                          -e openshift_logging_image_version=latest \
                          ${logging_extras} \
+                         ${EXTRA_EVARS:-} \
                          ${playbook} \
                          --skip-tags=update_master_config
     - type: "script"

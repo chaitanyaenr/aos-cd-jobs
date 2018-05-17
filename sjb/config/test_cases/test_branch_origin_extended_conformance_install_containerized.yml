@@ -1,11 +1,13 @@
 ---
-parent: 'common/test_cases/origin.yml'
+parent: 'common/test_cases/origin_minimal.yml'
 overrides:
   junit_analysis: False
 extensions:
-  sync_repos:
-    - name: "openshift-ansible"
-    - name: "aos-cd-jobs"
+  sync:
+    - openshift,aos-cd-jobs=master
+    - openshift,image-registry=master
+    - openshift,kubernetes-metrics-server=master
+    - openshift,origin=master
   actions:
     - type: "script"
       title: "build an origin release"
@@ -49,8 +51,8 @@ extensions:
         if [[ "${PULL_BASE_REF}" == "release-3.7" || "${PULL_BASE_REF}" == "release-3.6" || "${PULL_BASE_REF}" == "release-3.5"  ]]; then
           sudo yum downgrade -y ansible-2.3\*
         fi
-        sudo yum install -y "atomic-openshift-utils${last_tag/openshift-ansible/}.git.0.${last_commit}.el7"
-        rpm -V "atomic-openshift-utils${last_tag/openshift-ansible/}.git.0.${last_commit}.el7"
+        sudo yum install -y "openshift-ansible${last_tag/openshift-ansible/}.git.0.${last_commit}.el7"
+        rpm -q "openshift-ansible${last_tag/openshift-ansible/}.git.0.${last_commit}.el7"
     - type: "script"
       title: "install Ansible plugins"
       repository: "origin"

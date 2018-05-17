@@ -65,15 +65,19 @@ def load_configuration(config_path):
         return job_config
 
 
-if len(sys.argv) != 3:
-    print("USAGE: {} CONFIG JOB_TYPE".format(sys.argv[0]))
+if len(sys.argv) != 4:
+    print("USAGE: {} CONFIG JOB_TYPE FORMAT".format(sys.argv[0]))
     sys.exit(2)
 elif sys.argv[2] not in ["suite", "test"]:
     print("Job type must be one of `suite` or `test`.")
     sys.exit(2)
+elif sys.argv[3] not in ["xml", "sh"]:
+    print("Output format should be one of `sh` and `xml`")
+    sys.exit(2)
 
 job_config_path = sys.argv[1]
 job_type = sys.argv[2]
+output_format = sys.argv[3]
 job_name = splitext(basename(job_config_path))[0]
 print("[INFO] Generating configuration for {} job {}".format(job_type, job_name))
 job_config = load_configuration(job_config_path)
@@ -108,6 +112,8 @@ if job_type == "test":
         os=job_config["provision"]["os"],
         stage=job_config["provision"]["stage"],
         provider=job_config["provision"]["provider"],
+        instance_type=job_config["provision"].get("instance_type", None),
+        validate=job_config["provision"].get("validate", False)
     ))
 
     # next, repositories will be synced to the remote VM
@@ -154,17 +160,17 @@ if job_type == "test":
 
         if len(sync_actions) > 0:
             debug("[INFO] Coalescing into multi sync")
-            actions.append(MultiSyncAction(sync_actions))
+            actions.append(MultiSyncAction(output_format, sync_actions))
 
     # we need to expose the extra -e vars to the steps
     if "evars" in job_config:
-        actions.append(EvarsAction(job_config["evars"]))
+        actions.append(EvarsAction(job_config["evars"], output_format))
 
     def parse_action(action):
         if action["type"] == "script":
             debug("[INFO] Adding script action " + action.get("title", ""))
             return ScriptAction(action.get("repository", None), action["script"], action.get("title", None),
-                                action.get("timeout", None))
+                                action.get("timeout", None), output_format)
         elif action["type"] == "host_script":
             debug("[INFO] Adding host script action " + action.get("title", ""))
             return HostScriptAction(action["script"], action.get("title", None))
@@ -202,7 +208,7 @@ if job_type == "test":
 elif job_type == "suite":
     registered_names = []
     for child in job_config["children"]:
-        child_config_path = abspath(join(dirname(__file__), "generated", "{}.xml".format(child)))
+        child_config_path = abspath(join(dirname(__file__), "generated", "{0}.{1}".format(child, output_format)))
         if not exists(child_config_path):
             debug("[WARNING] Skipping child {}, configuration file not found.".format(child))
             continue
@@ -234,7 +240,7 @@ elif job_type == "suite":
     debug("[INFO] Added the following parameters for child jobs:\n{}".format(", ".join(registered_names)))
     actions.append(ChildJobAction(job_config["children"]))
 
-generator = MultiAction(actions)
+generator = MultiAction(output_format, actions)
 
 template_dir = abspath(join(dirname(__file__), 'templates'))
 env = Environment(loader=FileSystemLoader(template_dir))
@@ -258,17 +264,19 @@ DEFAULT_DESCRIPTION = "<div style=\"font-size: 32px; line-height: 1.5em; backgro
                       "<a href=\"https://github.com/openshift/aos-cd-jobs/tree/master/sjb\">openshift/aos-cd-jobs</a> REPOSITORY INSTEAD." + \
                       "</div>"
 
-output_path = abspath(join(dirname(__file__), "generated", "{}.xml".format(job_name)))
+output_path = abspath(join(dirname(__file__), "generated", "{0}.{1}".format(job_name, output_format)))
 with open(output_path, "w") as output_file:
-    output_file.write(env.get_template('test_case.xml').render(
+    template_file = 'test_case.{}'.format(output_format)
+    output_file.write(env.get_template(template_file).render(
         parameters=reduce_parameters(generator.generate_parameters()),
         build_steps=generator.generate_build_steps(),
         post_build_steps=generator.generate_post_build_steps(),
         action=action,
         target_repo=target_repo,
+        concurrent=job_config.get("concurrent", True),
         timer=job_config.get("timer", None),
         email=job_config.get("email", None),
         junit_analysis=job_config.get("junit_analysis", True),
-        description=job_config.get("description", DEFAULT_DESCRIPTION)
+        description=job_config.get("description", DEFAULT_DESCRIPTION),
     ))
 debug("[INFO] Wrote job definition to {}".format(output_path))

@@ -1,5 +1,12 @@
 ---
 parent: 'common/test_cases/origin_built_installed_release.yml'
+overrides:
+  sync:
+    - "openshift,openshift-ansible=master"
+    - "openshift,kubernetes-metrics-server=master"
+    - "openshift,origin-web-console-server=master"
+    - "openshift,aos-cd-jobs=master"
+    - "openshift,origin=master"
 extensions:
   actions:
     - type: "script"

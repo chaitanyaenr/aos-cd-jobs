@@ -4,6 +4,9 @@
 # re-enabling scheduledjob/cronjob/custom-host creation on the starter clusters.
 
 set -o xtrace
+set -o pipefail
+
+oc project default
 
 # Create a file that has all desired bootstrap policies
 F0="/tmp/reconcile_roles.tmp"
