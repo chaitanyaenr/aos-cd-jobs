@@ -1,5 +1,6 @@
 #!/usr/bin/env groovy
 
+def branch = branch.toString()
 def setup_tooling = SETUP_TOOLING.toString().toUpperCase()
 def run_conformance = CONFORMANCE.toString().toUpperCase()
 def openshift_install = OPENSHIFT_INSTALL.toString().toUpperCase()
@@ -18,11 +19,11 @@ node {
     deleteDir()
 
     // clone aos-cd-jobs repo where all the pipeline scripts exist
-    sh "git clone https://github.com/chaitanyaenr/aos-cd-jobs.git; cd aos-cd-jobs; git checkout alderaan"
+    sh "git clone https://github.com/mbruzek/aos-cd-jobs.git; cd aos-cd-jobs; git checkout $branch"
 
     // stage to install openstack
     if (install_openstack == "TRUE") {
-        load "aos-cd-jobs/alderaan/pipeline-scripts/setup_openstack.groovy"
+        load "aos-cd-jobs/alderaan/pipeline-scripts/openstack.groovy"
     }
 
     // stage to set up browbeat
@@ -32,7 +33,7 @@ node {
 
     // stage to install openshift
     if (openshift_install == "TRUE") {
-	load "aos-cd-jobs/alderaan/pipeline-scripts/scale-ci.groovy"
+        load "aos-cd-jobs/alderaan/pipeline-scripts/openshift.groovy"
     }
 
     // stage to setup pbench
@@ -42,7 +43,7 @@ node {
 
     // stage to run conformance
     if (run_conformance == "TRUE") {
-	load "aos-cd-jobs/alderaan/pipeline-scripts/conformance.groovy"
+        load "aos-cd-jobs/alderaan/pipeline-scripts/conformance.groovy"
     }
 
     // stage to scaleup the cluster
@@ -62,14 +63,14 @@ node {
 
     // stage to run logging scale test
     if (logging == "TRUE") {
-	load "aos-cd-jobs/alderaan/pipeline-scripts/logging.groovy"
+        load "aos-cd-jobs/alderaan/pipeline-scripts/logging.groovy"
     }
 
     // stage to run http scale test
     if (http == "TRUE") {
        load "aos-cd-jobs/alderaan/pipeline-scripts/http.groovy"
     }
-    
+
     // stage to run pgbench scale test
     if ( pgbench_test == "TRUE" ) {
       load "aos-cd-jobs/alderaan/pipeline-scripts/pgbench.groovy"
