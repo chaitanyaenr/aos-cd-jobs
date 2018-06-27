@@ -1,6 +1,6 @@
 #!/usr/bin/env groovy
 
-def branch = branch.toString()
+def contact = "nelluri@redhat.com"
 def setup_tooling = SETUP_TOOLING.toString().toUpperCase()
 def run_conformance = CONFORMANCE.toString().toUpperCase()
 def openshift_install = OPENSHIFT_INSTALL.toString().toUpperCase()
@@ -19,7 +19,7 @@ node {
     deleteDir()
 
     // clone aos-cd-jobs repo where all the pipeline scripts exist
-    sh "git clone https://github.com/mbruzek/aos-cd-jobs.git; cd aos-cd-jobs; git checkout $branch"
+    sh "git clone https://github.com/chaitanyaenr/aos-cd-jobs.git; cd aos-cd-jobs; git checkout alderaan"
 
     // stage to install openstack
     if (install_openstack == "TRUE") {
@@ -82,9 +82,11 @@ node {
     }
 
     mail(
-    	to: 'nelluri@redhat.com',
-        subject: 'Scale-ci pipeline completed successfully',
+        to: contact,
+        subject: "${env.JOB_NAME} ${env.BUILD_NUMBER} completed successfully",
         body: """\
-        Jenkins job: ${env.BUILD_URL}
-    """)
+            Jenkins job: ${env.BUILD_URL}\n\n
+            See the console output for more details:  ${env.BUILD_URL}consoleFull\n\n
+        """
+    )
 }

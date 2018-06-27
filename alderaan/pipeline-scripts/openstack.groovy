@@ -1,6 +1,6 @@
 #!/usr/bin/env groovy
 
-def contact = "env.BUILD_USER_EMAIL"
+def contact = "nelluri@redhat.com"
 def pipeline_id = env.BUILD_ID
 println("Current pipeline job id is '${pipeline_id}'")
 def node_label = "'CCI && ansible-2.4'"
