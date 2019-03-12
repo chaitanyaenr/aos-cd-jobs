@@ -19,6 +19,7 @@ def ns_per_cluster = NS_PER_CLUSTER.toString().toUpperCase()
 def create_jobs = CREATE_JOBS_FROM_JJB.toString().toUpperCase()
 def networking = NETWORKING.toString().toUpperCase() 
 def byo = BYO_SCALE_TEST.toString().toUpperCase()
+def prometheus_test = PROMETHEUS_TEST.toString().toUpperCase()
 def node_label = NODE_LABEL.toString()
 
 node (node_label) {
@@ -116,6 +117,11 @@ node (node_label) {
 	if (byo == "TRUE") {
 		load "alderaan/pipeline-scripts/byo.groovy"
 	}
+
+	// stage to run prometheus scale test
+	if ( prometheus_test == "TRUE" ) {
+		load "alderaan/pipeline-scripts/prometheus.groovy"
+	}	
 	
 	// cleanup the workspace
 	stage('cleaning workspace') {
