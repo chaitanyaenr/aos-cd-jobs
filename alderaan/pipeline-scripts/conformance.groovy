@@ -22,7 +22,7 @@ stage ('conformance') {
 			sh "wget ${CONFORMANCE_PROPERTY_FILE} -O ${property_file_name}"
 			sh "cat ${property_file_name}"
 			def conformance_properties = readProperties file: property_file_name
-			def master_hostname = conformance_properties['MASTER_HOSTNAME']
+			def jump_host = conformance_properties['JUMP_HOST']
 			def user = conformance_properties['USER']
 			def enable_pbench = conformance_properties['ENABLE_PBENCH']
 			def use_proxy = conformance_properties['USE_PROXY']
@@ -30,12 +30,13 @@ stage ('conformance') {
 			def proxy_host = conformance_properties['PROXY_HOST']
 			def token = conformance_properties['GITHUB_TOKEN']
 			def version = conformance_properties['OCP_4']
+			def containerized = conformance_properties['CONTAINERIZED']
 
 			// debug info
 			println "----------USER DEFINED OPTIONS-------------------"
 			println "-------------------------------------------------"
 			println "-------------------------------------------------"
-			println "MASTER_HOSTNAME: '${master_hostname}'"
+			println "JUMO_HOST: '${jump_host}'"
 			println "USER: '${user}'"
 			println "ENABLE_PBENCH: '${enable_pbench}'"
 			println "USE_PROXY: '${use_proxy}'"
@@ -49,14 +50,15 @@ stage ('conformance') {
 			try {
 				conformance_build = build job: 'SVT_conformance',
 				parameters: [   [$class: 'LabelParameterValue', name: 'node', label: node_label ],
-						[$class: 'StringParameterValue', name: 'MASTER_HOSTNAME', value: master_hostname ],
-						[$class: 'StringParameterValue', name: 'MASTER_USER', value: user ],
+						[$class: 'StringParameterValue', name: 'JUMP_HOST', value: jump_host ],
+						[$class: 'StringParameterValue', name: 'USER', value: user ],
 						[$class: 'StringParameterValue', name: 'ENABLE_PBENCH', value: enable_pbench ],
 						[$class: 'BooleanParameterValue', name: 'USE_PROXY', value: Boolean.valueOf(use_proxy) ],
 						[$class: 'StringParameterValue', name: 'PROXY_USER', value: proxy_user ],
 						[$class: 'StringParameterValue', name: 'PROXY_HOST', value: proxy_host ],
 						[$class: 'BooleanParameterValue', name: 'OCP_4', value: Boolean.valueOf(version) ],
-						[$class: 'StringParameterValue', name: 'GITHUB_TOKEN', value: token ]]
+						[$class: 'StringParameterValue', name: 'GITHUB_TOKEN', value: token ],
+						[$class: 'BooleanParameterValue', name: 'CONTAINERIZED', value: Boolean.valueOf(containerized)]]
 			} catch ( Exception e) {
 				echo "CONFORMANCE Job failed with the following error: "
 				echo "${e.getMessage()}"
