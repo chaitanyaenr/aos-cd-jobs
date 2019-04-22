@@ -67,7 +67,7 @@ stage ('prometheus_scale_test') {
 			sh "scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ${WORKSPACE}/perf-dept/ssh_keys/id_rsa_perf ${property_file_name} root@${JUMP_HOST}:/root/properties"
 
 			try {
-				prometheus_build = build job: '${JOB}',
+				prometheus_build = build job: 'SVT_PROMETHEUS_SCALING',
 				parameters: [
 						[$class: 'StringParameterValue', name: 'JUMP_HOST', value: JUMP_HOST ],
 						[$class: 'StringParameterValue', name: 'USER', value: USER ],
@@ -88,20 +88,20 @@ stage ('prometheus_scale_test') {
 						[$class: 'StringParameterValue', name: 'TEST_NAME', value: TEST_NAME ],
 						[$class: 'StringParameterValue', name: 'DURATION', value: DURATION ]]
 			} catch ( Exception e) {
-				echo "${JOB} Job failed with the following error: "
+				echo "SVT_PROMETHEUS_SCALING Job failed with the following error: "
 				echo "${e.getMessage()}"
 				echo "Sending an email"
 				mail(
 					to: 'sejug@redhat.com, nelluri@redhat.com',
-					subject: '${JOB} job failed',
+					subject: 'SVT_PROMETHEUS_SCALING job failed',
 					body: """\
-						Encoutered an error while running the ${JOB} job: ${e.getMessage()}\n\n
+						Encoutered an error while running the SVT_PROMETHEUS_SCALING job: ${e.getMessage()}\n\n
 						Jenkins job: ${env.BUILD_URL}
 				""")
 				currentBuild.result = "FAILURE"
 				sh "exit 1"
 			}
-			println "${JOB} build ${prometheus_build.getNumber()} completed successfully"
+			println "SVT_PROMETHEUS_SCALING build ${prometheus_build.getNumber()} completed successfully"
 		}
 	}
 }
