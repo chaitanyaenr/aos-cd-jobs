@@ -17,7 +17,7 @@ def mongodb_ycsb_test = MONGODB_YCSB_TEST.toString().toUpperCase()
 def podvertical = PODVERTICAL.toString().toUpperCase()
 def deployments_per_ns = DEPLOYMENTS_PER_NS.toString().toUpperCase()
 def ns_per_cluster = NS_PER_CLUSTER.toString().toUpperCase()
-def create_jobs = CREATE_JOBS_FROM_JJB.toString().toUpperCase()
+def scale_ci_update_jobs = SCALE_CI_UPDATE_JOBS.toString().toUpperCase()
 def networking = NETWORKING.toString().toUpperCase() 
 def byo = BYO_SCALE_TEST.toString().toUpperCase()
 def node_label = NODE_LABEL.toString()
@@ -28,99 +28,99 @@ node (node_label) {
 		checkout scm
 	}
 	
-	// create jenkins jobs using the jjb templated in openshift-qe jenkins 
-	if (create_jobs == "TRUE") {
-		load "alderaan/pipeline-scripts/create_jobs.groovy"
+	// creates/updates jenkins jobs using the jjb templates
+	if (scale_ci_update_jobs == "TRUE") {
+		load "scale-ci/pipeline-scripts/scale_ci_update_jobs.groovy"
 	}
 
 	// stage to install openstack
 	if (install_openstack == "TRUE") {
-		load "alderaan/pipeline-scripts/openstack.groovy"
+		load "scale-ci/pipeline-scripts/openstack.groovy"
 	}
 
 	// stage to set up browbeat
 	if (browbeat == "TRUE") {
-		load "alderaan/pipeline-scripts/browbeat.groovy"
+		load "scale-ci/pipeline-scripts/browbeat.groovy"
 	}
 
 	// stage to install openshift
 	if (openshift_install == "TRUE") {
-		load "alderaan/pipeline-scripts/openshift.groovy"
+		load "scale-ci/pipeline-scripts/openshift.groovy"
 	}
 
 	// stage to setup pbench
 	if (setup_tooling == "TRUE") {
-		load "alderaan/pipeline-scripts/tooling.groovy"
+		load "scale-ci/pipeline-scripts/tooling.groovy"
 	}
 
 	// stage to run conformance
 	if (run_conformance == "TRUE") {
-		load "alderaan/pipeline-scripts/conformance.groovy"
+		load "scale-ci/pipeline-scripts/conformance.groovy"
 	}
 
 	// stage to scaleup the cluster
 	if (scaleup == "TRUE") {
-		load "alderaan/pipeline-scripts/scaleup.groovy"
+		load "scale-ci/pipeline-scripts/scaleup.groovy"
 	}
 
 	// stage to run nodevertical scale test
 	if (nodevertical == "TRUE") {
-		load "alderaan/pipeline-scripts/nodevertical.groovy"
+		load "scale-ci/pipeline-scripts/nodevertical.groovy"
 	}
 
 	// stage to run http scale test
 	if (http == "TRUE") {
-		load "alderaan/pipeline-scripts/http.groovy"
+		load "scale-ci/pipeline-scripts/http.groovy"
 	}
 
 	// stage to run deployments per ns test
 	if ( deployments_per_ns == "TRUE" ) {
-		load "alderaan/pipeline-scripts/deployments_per_ns.groovy"
+		load "scale-ci/pipeline-scripts/deployments_per_ns.groovy"
 	}
 
 	// stage to run podvertical test
 	if ( podvertical == "TRUE" ) {
-		load "alderaan/pipeline-scripts/podvertical.groovy"
+		load "scale-ci/pipeline-scripts/podvertical.groovy"
 	}
 
 	// stage to run networking test
 	if ( networking == "TRUE" ) {
-		load "alderaan/pipeline-scripts/networking.groovy"
+		load "scale-ci/pipeline-scripts/networking.groovy"
 	}
 
 	// stage to run pgbench scale test
 	if ( pgbench_test == "TRUE" ) {
-		load "alderaan/pipeline-scripts/pgbench.groovy"
+		load "scale-ci/pipeline-scripts/pgbench.groovy"
 	}
 
 	// stage to run mongodb ycsb scale test
 	if ( mongodb_ycsb_test == "TRUE" ) {
-		load "alderaan/pipeline-scripts/mongodbycsb.groovy"
+		load "scale-ci/pipeline-scripts/mongodbycsb.groovy"
 	}
 
 	// stage to run mastervertical scale test
 	if (mastervertical == "TRUE") {
-		load "alderaan/pipeline-scripts/mastervertical.groovy"
+		load "scale-ci/pipeline-scripts/mastervertical.groovy"
 	}
 
 	// stage to run ns_per_cluster test
 	if ( ns_per_cluster == "TRUE" ) {
-		load "alderaan/pipeline-scripts/ns_per_cluster.groovy"
+		load "scale-ci/pipeline-scripts/ns_per_cluster.groovy"
 	}
 
 	// stage to run logging scale test
 	if (logging == "TRUE") {
-		load "alderaan/pipeline-scripts/logging.groovy"
+		load "scale-ci/pipeline-scripts/logging.groovy"
 	}
 
 	// stage to run prometheus scale test
 	if ( prometheus_test == "TRUE" ) {
-		load "alderaan/pipeline-scripts/prometheus.groovy"
+		load "scale-ci/pipeline-scripts/prometheus.groovy"
 	}
 
 	// stage to run BYO scale test
 	if (byo == "TRUE") {
-		load "alderaan/pipeline-scripts/byo.groovy"
+		load "scale-ci/pipeline-scripts/byo.groovy"
 	}
 	
 	// cleanup the workspace

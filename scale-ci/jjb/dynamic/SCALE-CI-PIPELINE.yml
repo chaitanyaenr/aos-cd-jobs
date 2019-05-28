@@ -1,9 +1,9 @@
 - job:
     concurrent: true
     description: 'Collection of Jenkins jobs to setup osp, ocp and run various scale
-      tests on Alderaan environment. '
+      tests on OpenShift. '
     disabled: false
-    name: alderaan-pipeline
+    name: SCALE-CI-PIPELINE
     parameters:
     - bool:
         default: false
@@ -69,6 +69,14 @@
         default: false
         description: ''
         name: NS_PER_CLUSTER
+    - bool:
+        default: false
+        description: ''
+        name: PROMETHEUS_TEST
+    - bool:
+        default: false
+        description: ''
+        name: BYO_SCALE_TEST
     - bool:
         default: false
         description: ''
@@ -148,14 +156,26 @@
     - string:
         default: ''
         description: ''
+        name: BYO_PROPERTY_FILE
+    - string:
+        default: ''
+        description: ''
         name: LOGGING_PROPERTY_FILE
+    - string:
+        default: ''
+        description: ''
+        name: PROMETHEUS_PROPERTY_FILE
+    - string:
+        default: cucushift && oc311
+        description: ''
+        name: NODE_LABEL
     pipeline-scm:
       lightweight-checkout: false
       scm:
       - git:
           branches:
-          - '*/master'
-          url: https://github.com/openshift/aos-cd-jobs.git
+          - '*/enhancements_4.1'
+          url: https://github.com/chaitanyaenr/aos-cd-jobs.git
           wipe-workspace: true
       script-path: alderaan/Jenkinsfile
     project-type: pipeline
@@ -176,7 +196,9 @@
           <ownership>
           <ownershipEnabled>true</ownershipEnabled>
           <primaryOwnerId>nelluri</primaryOwnerId>
-          <coownersIds class="sorted-set" />
+          <coownersIds class="sorted-set">
+          <string>xlisovsk</string>
+          </coownersIds>
           </ownership>
           </com.synopsys.arc.jenkins.plugins.ownership.jobs.JobOwnerJobProperty>
     - raw:
